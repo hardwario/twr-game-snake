@@ -1,6 +1,6 @@
 #include <application.h>
 
-#define MAX_SNAKE_LENGTH 30
+#define MAX_SNAKE_LENGTH 16
 
 #define PIXEL_SIZE 5
 #define MAX_X ((128 / PIXEL_SIZE) - 1)
@@ -23,6 +23,10 @@ state_t state;
 int menu_item;
 int difficulty = 1;
 
+bc_led_t led_lcd_red;
+bc_led_t led_lcd_green;
+bc_gfx_t *pgfx;
+
 void welcome_page(bool all);
 void game_start(void);
 void game_over(void);
@@ -36,7 +40,9 @@ void lcd_button_event_handler(bc_button_t *self, bc_button_event_t event, void *
 
 void application_init(void)
 {
-    bc_module_lcd_init(&_bc_module_lcd_framebuffer);
+    bc_module_lcd_init();
+
+    pgfx = bc_module_lcd_get_gfx();
 
     static bc_button_t lcd_left;
     bc_button_init_virtual(&lcd_left, BC_MODULE_LCD_BUTTON_LEFT, bc_module_lcd_get_button_driver(), false);
@@ -45,6 +51,9 @@ void application_init(void)
     static bc_button_t lcd_right;
     bc_button_init_virtual(&lcd_right, BC_MODULE_LCD_BUTTON_RIGHT, bc_module_lcd_get_button_driver(), false);
     bc_button_set_event_handler(&lcd_right, lcd_button_event_handler, NULL);
+
+    bc_led_init_virtual(&led_lcd_red, BC_MODULE_LCD_LED_RED, bc_module_lcd_get_led_driver(), true);
+    bc_led_init_virtual(&led_lcd_green, BC_MODULE_LCD_LED_GREEN, bc_module_lcd_get_led_driver(), true);
 
     welcome_page(true);
 }
@@ -61,7 +70,7 @@ void application_task(void)
 		return;
 	}
 
-	bc_module_core_pll_enable();
+	bc_system_pll_enable();
 
 	switch (direction) {
 		case RIGHT:
@@ -160,16 +169,26 @@ void application_task(void)
 
 	bc_module_lcd_update();
 
-	bc_module_core_pll_disable();
+	bc_system_pll_disable();
 
 	bc_scheduler_plan_current_relative((difficulty == HARD ? 50 : 100) - snake_length);
+}
+
+void draw_menu_item(int x, int y, char *str, bool color)
+{
+
+    int width = bc_gfx_calc_string_width(pgfx, str);
+
+    bc_gfx_draw_fill_rectangle(pgfx, x, y, x + width, y + 15, !color);
+
+    bc_gfx_draw_string(pgfx, x, y, str, color);
 }
 
 void welcome_page(bool all)
 {
 	static char *menu_items[] = {"Easy", "Medium", "Hard"};
 
-	bc_module_core_pll_enable();
+	bc_system_pll_enable();
 
 	if (all)
 	{
@@ -181,13 +200,20 @@ void welcome_page(bool all)
 
 	bc_module_lcd_set_font(&bc_font_ubuntu_15);
 
-	bc_module_lcd_draw_string(20, 25, "New game", menu_item == 0 ? WHITE : BLACK);
+	draw_menu_item(20, 25, "New game", menu_item == 0 ? WHITE : BLACK);
 
 	for (int i = 0; i < 3; i++)
 	{
-		bc_module_lcd_draw_string(30, 45 + (i * 15), menu_items[i], i == menu_item - 1 ? WHITE : BLACK);
+		draw_menu_item(30, 45 + (i * 15), menu_items[i], i == menu_item - 1 ? WHITE : BLACK);
 
-		bc_module_lcd_draw_string(20, 45 + (i * 15), i == difficulty ? "*" : "  ", BLACK);
+        if (i == difficulty)
+        {
+            bc_module_lcd_draw_string(20, 45 + (i * 15), "*", BLACK);
+        }
+        else
+        {
+            bc_gfx_draw_fill_rectangle(pgfx, 20, 45 + (i * 15), 30, 45 + (i * 15) + 15, WHITE);
+        }
 	}
 
 	if (all)
@@ -199,16 +225,17 @@ void welcome_page(bool all)
 
 	bc_module_lcd_update();
 
-	bc_module_core_pll_disable();
+	bc_system_pll_disable();
 
 	bc_scheduler_plan_absolute(0, BC_TICK_INFINITY);
 }
 
 void game_start()
 {
-	bc_module_core_pll_enable();
+	bc_system_pll_enable();
 
 	memset(snake, 0x00, sizeof(snake));
+
 	bc_module_lcd_clear();
 
 	snake_length = 1;
@@ -227,12 +254,14 @@ void game_start()
 
 	state = GAME;
 
-	bc_module_core_pll_disable();
+	bc_system_pll_disable();
 }
 
 void game_over(void)
 {
-	bc_module_core_pll_enable();
+	bc_system_pll_enable();
+
+    bc_led_pulse(&led_lcd_red, 100);
 
 	bc_module_lcd_set_font(&bc_font_ubuntu_24);
 	bc_module_lcd_draw_string(20, 40, "GAME", true);
@@ -245,12 +274,14 @@ void game_over(void)
 
 	state = END;
 
-	bc_module_core_pll_disable();
+	bc_system_pll_disable();
 }
 
 void game_win(void)
 {
-	bc_module_core_pll_enable();
+	bc_system_pll_enable();
+
+    bc_led_pulse(&led_lcd_green, 100);
 
 	bc_module_lcd_set_font(&bc_font_ubuntu_24);
 	bc_module_lcd_draw_string(10, 40, "YOU WON", true);
@@ -262,7 +293,7 @@ void game_win(void)
 
 	state = END;
 
-	bc_module_core_pll_disable();
+	bc_system_pll_disable();
 }
 
 void create_target(void)
