@@ -2,9 +2,9 @@
 
 # Firmware for Game Snake
 
-[![Travis](https://img.shields.io/travis/blavka/bcf-game-snake/master.svg)](https://travis-ci.org/blavka/bcf-game-snake)
-[![Release](https://img.shields.io/github/release/blavka/bcf-game-snake.svg)](https://github.com/blavka/bcf-game-snake/releases)
-[![License](https://img.shields.io/github/license/blavka/bcf-game-snake.svg)](https://github.com/blavka/bcf-game-snake/blob/master/LICENSE)
+[![Travis](https://img.shields.io/travis/bigclownlabs/bcf-game-snake/master.svg)](https://travis-ci.org/bigclownlabs/bcf-game-snake)
+[![Release](https://img.shields.io/github/release/bigclownlabs/bcf-game-snake.svg)](https://github.com/bigclownlabs/bcf-game-snake/releases)
+[![License](https://img.shields.io/github/license/bigclownlabs/bcf-game-snake.svg)](https://github.com/bigclownlabs/bcf-game-snake/blob/master/LICENSE)
 [![Twitter](https://img.shields.io/twitter/follow/BigClownLabs.svg?style=social&label=Follow)](https://twitter.com/BigClownLabs)
 
 This repository contains firmware for game Snake
