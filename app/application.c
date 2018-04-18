@@ -127,6 +127,9 @@ void application_task(void)
 		if ((next.x > MAX_X) || (next.x < 0) || (next.y > MAX_Y) || (next.y < 0))
 		{
 			game_over();
+
+            bc_system_pll_disable();
+
 			return;
 		}
 	}
@@ -137,6 +140,9 @@ void application_task(void)
 		if ((next.x == snake[i].x) && (next.y == snake[i].y))
 		{
 			game_over();
+
+            bc_system_pll_disable();
+
 			return;
 		}
 	}
@@ -159,6 +165,9 @@ void application_task(void)
 		if (snake_length + 1 == MAX_SNAKE_LENGTH)
 		{
 			game_win();
+
+            bc_system_pll_disable();
+
 			return;
 		}
 
