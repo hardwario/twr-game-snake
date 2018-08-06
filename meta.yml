@@ -1,0 +1,6 @@
+description: Simple snake game similar to the one on older mobile phones.
+assembly:
+  - name: BigClown Core Module
+  - name: BigClown LCD Module
+  - name: BigClown Battery Module
+    optional: true
