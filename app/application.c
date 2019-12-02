@@ -418,7 +418,7 @@ void lcd_button_event_handler(bc_button_t *self, bc_button_event_t event, void *
 
 	if (event == BC_BUTTON_EVENT_PRESS)
 	{
-		if (self->_channel.virtual_channel == BC_MODULE_LCD_BUTTON_LEFT)
+		if (self->_channel.virtual == BC_MODULE_LCD_BUTTON_LEFT)
 		{
 			left();
 		}
