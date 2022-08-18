@@ -2,6 +2,7 @@
 #define _APPLICATION_H
 
 #include <bcl.h>
+#include <twr.h>
 
 typedef struct
 {

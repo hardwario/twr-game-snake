@@ -23,9 +23,9 @@ state_t state;
 int menu_item;
 int difficulty = 1;
 
-bc_led_t led_lcd_red;
-bc_led_t led_lcd_green;
-bc_gfx_t *pgfx;
+twr_led_t led_lcd_red;
+twr_led_t led_lcd_green;
+twr_gfx_t *pgfx;
 
 void welcome_page(bool all);
 void game_start(void);
@@ -36,24 +36,24 @@ void draw_point(Point_t *point, bool color);
 void left(void);
 void right(void);
 void enter(void);
-void lcd_button_event_handler(bc_button_t *self, bc_button_event_t event, void *event_param);
+void lcd_button_event_handler(twr_button_t *self, twr_button_event_t event, void *event_param);
 
 void application_init(void)
 {
-    bc_module_lcd_init();
+    twr_module_lcd_init();
 
-    pgfx = bc_module_lcd_get_gfx();
+    pgfx = twr_module_lcd_get_gfx();
 
-    static bc_button_t lcd_left;
-    bc_button_init_virtual(&lcd_left, BC_MODULE_LCD_BUTTON_LEFT, bc_module_lcd_get_button_driver(), false);
-    bc_button_set_event_handler(&lcd_left, lcd_button_event_handler, NULL);
+    static twr_button_t lcd_left;
+    twr_button_init_virtual(&lcd_left, TWR_MODULE_LCD_BUTTON_LEFT, twr_module_lcd_get_button_driver(), false);
+    twr_button_set_event_handler(&lcd_left, lcd_button_event_handler, NULL);
 
-    static bc_button_t lcd_right;
-    bc_button_init_virtual(&lcd_right, BC_MODULE_LCD_BUTTON_RIGHT, bc_module_lcd_get_button_driver(), false);
-    bc_button_set_event_handler(&lcd_right, lcd_button_event_handler, NULL);
+    static twr_button_t lcd_right;
+    twr_button_init_virtual(&lcd_right, TWR_MODULE_LCD_BUTTON_RIGHT, twr_module_lcd_get_button_driver(), false);
+    twr_button_set_event_handler(&lcd_right, lcd_button_event_handler, NULL);
 
-    bc_led_init_virtual(&led_lcd_red, BC_MODULE_LCD_LED_RED, bc_module_lcd_get_led_driver(), true);
-    bc_led_init_virtual(&led_lcd_green, BC_MODULE_LCD_LED_GREEN, bc_module_lcd_get_led_driver(), true);
+    twr_led_init_virtual(&led_lcd_red, TWR_MODULE_LCD_LED_RED, twr_module_lcd_get_led_driver(), true);
+    twr_led_init_virtual(&led_lcd_green, TWR_MODULE_LCD_LED_GREEN, twr_module_lcd_get_led_driver(), true);
 
     welcome_page(true);
 }
@@ -64,13 +64,13 @@ void application_task(void)
 	{
 		return;
 	}
-	if (!bc_module_lcd_is_ready())
+	if (!twr_module_lcd_is_ready())
 	{
-		bc_scheduler_plan_current_now();
+		twr_scheduler_plan_current_now();
 		return;
 	}
 
-	bc_system_pll_enable();
+	twr_system_pll_enable();
 
 	switch (direction) {
 		case RIGHT:
@@ -128,7 +128,7 @@ void application_task(void)
 		{
 			game_over();
 
-            bc_system_pll_disable();
+            twr_system_pll_disable();
 
 			return;
 		}
@@ -141,7 +141,7 @@ void application_task(void)
 		{
 			game_over();
 
-            bc_system_pll_disable();
+            twr_system_pll_disable();
 
 			return;
 		}
@@ -166,7 +166,7 @@ void application_task(void)
 		{
 			game_win();
 
-            bc_system_pll_disable();
+            twr_system_pll_disable();
 
 			return;
 		}
@@ -176,38 +176,38 @@ void application_task(void)
 		snake_length++;
 	}
 
-	bc_module_lcd_update();
+	twr_module_lcd_update();
 
-	bc_system_pll_disable();
+	twr_system_pll_disable();
 
-	bc_scheduler_plan_current_relative((difficulty == HARD ? 50 : 100) - snake_length);
+	twr_scheduler_plan_current_relative((difficulty == HARD ? 50 : 100) - snake_length);
 }
 
 void draw_menu_item(int x, int y, char *str, bool color)
 {
 
-    int width = bc_gfx_calc_string_width(pgfx, str);
+    int width = twr_gfx_calc_string_width(pgfx, str);
 
-    bc_gfx_draw_fill_rectangle(pgfx, x, y, x + width, y + 15, !color);
+    twr_gfx_draw_fill_rectangle(pgfx, x, y, x + width, y + 15, !color);
 
-    bc_gfx_draw_string(pgfx, x, y, str, color);
+    twr_gfx_draw_string(pgfx, x, y, str, color);
 }
 
 void welcome_page(bool all)
 {
 	static char *menu_items[] = {"Easy", "Medium", "Hard"};
 
-	bc_system_pll_enable();
+	twr_system_pll_enable();
 
 	if (all)
 	{
 		state = WELCOME;
 		menu_item = 0;
-		bc_module_lcd_clear();
-		bc_scheduler_plan_absolute(0, BC_TICK_INFINITY);
+		twr_module_lcd_clear();
+		twr_scheduler_plan_absolute(0, TWR_TICK_INFINITY);
 	}
 
-	bc_module_lcd_set_font(&bc_font_ubuntu_15);
+	twr_module_lcd_set_font(&twr_font_ubuntu_15);
 
 	draw_menu_item(20, 25, "New game", menu_item == 0 ? WHITE : BLACK);
 
@@ -217,35 +217,35 @@ void welcome_page(bool all)
 
         if (i == difficulty)
         {
-            bc_module_lcd_draw_string(20, 45 + (i * 15), "*", BLACK);
+            twr_module_lcd_draw_string(20, 45 + (i * 15), "*", BLACK);
         }
         else
         {
-            bc_gfx_draw_fill_rectangle(pgfx, 20, 45 + (i * 15), 30, 45 + (i * 15) + 15, WHITE);
+            twr_gfx_draw_fill_rectangle(pgfx, 20, 45 + (i * 15), 30, 45 + (i * 15) + 15, WHITE);
         }
 	}
 
 	if (all)
 	{
-		bc_module_lcd_set_font(&bc_font_ubuntu_13);
-		bc_module_lcd_draw_string(5, 115, "Down", BLACK);
-		bc_module_lcd_draw_string(90, 115, "Enter", BLACK);
+		twr_module_lcd_set_font(&twr_font_ubuntu_13);
+		twr_module_lcd_draw_string(5, 115, "Down", BLACK);
+		twr_module_lcd_draw_string(90, 115, "Enter", BLACK);
 	}
 
-	bc_module_lcd_update();
+	twr_module_lcd_update();
 
-	bc_system_pll_disable();
+	twr_system_pll_disable();
 
-	bc_scheduler_plan_absolute(0, BC_TICK_INFINITY);
+	twr_scheduler_plan_absolute(0, TWR_TICK_INFINITY);
 }
 
 void game_start()
 {
-	bc_system_pll_enable();
+	twr_system_pll_enable();
 
 	memset(snake, 0x00, sizeof(snake));
 
-	bc_module_lcd_clear();
+	twr_module_lcd_clear();
 
 	snake_length = 1;
 	direction = 0;
@@ -257,52 +257,52 @@ void game_start()
 
 	create_target();
 
-	bc_module_lcd_update();
+	twr_module_lcd_update();
 
-	bc_scheduler_plan_now(0);
+	twr_scheduler_plan_now(0);
 
 	state = GAME;
 
-	bc_system_pll_disable();
+	twr_system_pll_disable();
 }
 
 void game_over(void)
 {
-	bc_system_pll_enable();
+	twr_system_pll_enable();
 
-    bc_led_pulse(&led_lcd_red, 100);
+    twr_led_pulse(&led_lcd_red, 100);
 
-	bc_module_lcd_set_font(&bc_font_ubuntu_24);
-	bc_module_lcd_draw_string(20, 40, "GAME", true);
-	bc_module_lcd_draw_string(40, 65, "OVER", true);
+	twr_module_lcd_set_font(&twr_font_ubuntu_24);
+	twr_module_lcd_draw_string(20, 40, "GAME", true);
+	twr_module_lcd_draw_string(40, 65, "OVER", true);
 
-	bc_module_lcd_set_font(&bc_font_ubuntu_13);
-	bc_module_lcd_draw_string(20, 110, "Press any key ...", true);
+	twr_module_lcd_set_font(&twr_font_ubuntu_13);
+	twr_module_lcd_draw_string(20, 110, "Press any key ...", true);
 
-	bc_module_lcd_update();
+	twr_module_lcd_update();
 
 	state = END;
 
-	bc_system_pll_disable();
+	twr_system_pll_disable();
 }
 
 void game_win(void)
 {
-	bc_system_pll_enable();
+	twr_system_pll_enable();
 
-    bc_led_pulse(&led_lcd_green, 100);
+    twr_led_pulse(&led_lcd_green, 100);
 
-	bc_module_lcd_set_font(&bc_font_ubuntu_24);
-	bc_module_lcd_draw_string(10, 40, "YOU WON", true);
+	twr_module_lcd_set_font(&twr_font_ubuntu_24);
+	twr_module_lcd_draw_string(10, 40, "YOU WON", true);
 
-	bc_module_lcd_set_font(&bc_font_ubuntu_13);
-	bc_module_lcd_draw_string(20, 110, "Press any key ...", true);
+	twr_module_lcd_set_font(&twr_font_ubuntu_13);
+	twr_module_lcd_draw_string(20, 110, "Press any key ...", true);
 
-	bc_module_lcd_update();
+	twr_module_lcd_update();
 
 	state = END;
 
-	bc_system_pll_disable();
+	twr_system_pll_disable();
 }
 
 void create_target(void)
@@ -337,7 +337,7 @@ void draw_point(Point_t *point, bool color)
 	{
 		for (int j = 0; j < PIXEL_SIZE; j++)
 		{
-			bc_module_lcd_draw_pixel(x + i, y + j, color);
+			twr_module_lcd_draw_pixel(x + i, y + j, color);
 		}
 	}
 }
@@ -412,13 +412,13 @@ void enter(void)
 	}
 }
 
-void lcd_button_event_handler(bc_button_t *self, bc_button_event_t event, void *event_param)
+void lcd_button_event_handler(twr_button_t *self, twr_button_event_t event, void *event_param)
 {
     (void) event_param;
 
-	if (event == BC_BUTTON_EVENT_PRESS)
+	if (event == TWR_BUTTON_EVENT_PRESS)
 	{
-		if (self->_channel.virtual == BC_MODULE_LCD_BUTTON_LEFT)
+		if (self->_channel.virtual == TWR_MODULE_LCD_BUTTON_LEFT)
 		{
 			left();
 		}
@@ -427,7 +427,7 @@ void lcd_button_event_handler(bc_button_t *self, bc_button_event_t event, void *
 			right();
 		}
 	}
-	else if (event == BC_BUTTON_EVENT_HOLD)
+	else if (event == TWR_BUTTON_EVENT_HOLD)
 	{
 		welcome_page(true);
 	}
